@@ -1,6 +1,8 @@
-import os, sys, inspect
+import os
+import sys
+import inspect
 
-cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"python-verisure")))
+cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "python-verisure")))
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
@@ -14,11 +16,14 @@ eg.RegisterPlugin(
     description = "Verisure alarm and lock"
 )
 
+
 class VerisureGhost(eg.PluginBase):
+
     def __init__(self):
+
         self.AddAction(GetAll)
         self.AddAction(SetLockState)
-    def __start__(self, username,password,code):
+    def __start__(self, username, password, code):
         self.username = username
         self.password = password
         self.code = code
@@ -28,7 +33,7 @@ class VerisureGhost(eg.PluginBase):
     def __stop__(self):
         self.myPages.logout()
 
-    def Configure(self, username="",password="",code=""):
+    def Configure(self, username="", password="", code=""):
         panel = eg.ConfigPanel()
 
         usernameCtrl = panel.TextCtrl(username)
@@ -46,22 +51,16 @@ class VerisureGhost(eg.PluginBase):
         )
         panel.sizer.Add(settingsBox, 0, wx.EXPAND)
 
-        #panel.sizer.AddMany([
-        #    (usernameCtrl, 0, wx.EXPAND),
-        #    (passwordCtrl, 0, wx.EXPAND|wx.TOP, 10),
-        #    (codeCtrl, 0, wx.EXPAND|wx.TOP, 10),
-        #])
-
         while panel.Affirmed():
             panel.SetResult(
                 usernameCtrl.GetValue(),
                 passwordCtrl.GetValue(),
                 codeCtrl.GetValue()
             )
-            #panel.SetResult(textControl.GetValue())
+
     def GetAll(self):
         return self.myPages.get_overviews()
-    def SetState(self,serialNumber,state):
+    def SetState(self, serialNumber, state):
         print "Set state of " + serialNumber + " to " + state
         return self.myPages.lock.set(self.code, serialNumber, state)
 
@@ -73,17 +72,17 @@ class GetAll(eg.ActionBase):
 
 
 class SetLockState(eg.ActionBase):
+
     def __call__(self, serialNumber, state):
-        print self.plugin.SetState(serialNumber,state)
+        print self.plugin.SetState(serialNumber, state)
+
     def Configure(self, serialNumber="", state=""):
         print "Serial: "+serialNumber
         print "State: "+state
         panel = eg.ConfigPanel()
         serialCtrl = panel.TextCtrl(serialNumber)
         stateCtrl = panel.TextCtrl(state)
-        #stateCtrl = wx.Choice(panel, -1, choices=['UNLOCKED':'Unlock','LOCKED':'Lock'])
-        #stateCtrl = wx.Choice(panel, choices=['UNLOCKED','LOCKED'])
-
+        # stateCtrl = wx.Choice(panel, choices=['UNLOCKED','LOCKED'])
 
         st1 = panel.StaticText("Serial number")
         st2 = panel.StaticText("Lock state")
@@ -96,5 +95,5 @@ class SetLockState(eg.ActionBase):
         )
         panel.sizer.Add(settingsBox, 0, wx.EXPAND)
         while panel.Affirmed():
-            #panel.SetResult(serialCtrl.GetValue(),stateCtrl.GetSelection())
-            panel.SetResult(serialCtrl.GetValue(),stateCtrl.GetValue())
+            # panel.SetResult(serialCtrl.GetValue(), stateCtrl.GetSelection())
+            panel.SetResult(serialCtrl.GetValue(), stateCtrl.GetValue())
